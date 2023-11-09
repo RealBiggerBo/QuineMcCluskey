@@ -1,4 +1,6 @@
-﻿List<int> expectedOutputs = new List<int>();
+﻿using QuineMcCluskey;
+
+List<int> expectedOutputs = new List<int>();
 
 while (true)
 {
@@ -9,7 +11,4 @@ while (true)
     expectedOutputs.Add(res);
 }
 
-for (int i = 0; i<expectedOutputs.Count; i++)
-{
-    Console.WriteLine(expectedOutputs[i]);
-}
+new QuineMcCluskeySolver(expectedOutputs.ToArray()).Solve();
