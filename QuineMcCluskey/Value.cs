@@ -34,7 +34,7 @@ namespace QuineMcCluskey
                     signals[i] = a.signals[i];
                 }
             }
-            Console.WriteLine(a + " and " + b + " becomes: " + this);
+            //Console.WriteLine(a + " and " + b + " becomes: " + this);
         }
 
         public int GetGroup()
