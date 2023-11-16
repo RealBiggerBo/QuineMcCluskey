@@ -36,8 +36,13 @@ namespace QuineMcCluskey
             }
             //Console.WriteLine(a + " and " + b + " becomes: " + this);
         }
+        public Value(string val)
+        {
+            signals = val.ToCharArray();
+            Array.Reverse(signals);
+        }
 
-        public int GetGroup()
+        public int GetGroupIndex()
         {
             int groupIndex = 0;
             for (int i = 0; i < signals.Length; i++)
@@ -57,6 +62,17 @@ namespace QuineMcCluskey
                     differences++;
                     if(differences > 1) return false;
                 }
+            }
+            return true;
+        }
+
+        public bool Implies(Value other)
+        {
+            //a=>b
+            for (int i = 0;i< signals.Length; i++)
+            {
+                if (signals[i] != other.signals[i] && signals[i] != '-' && other.signals[i]!='-')
+                    return false;
             }
             return true;
         }

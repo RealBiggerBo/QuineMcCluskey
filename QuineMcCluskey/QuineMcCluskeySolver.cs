@@ -1,7 +1,9 @@
 ﻿using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,14 +16,10 @@ namespace QuineMcCluskey
         private int[] outputs;
         private Value[] outputValues;
 
-        public QuineMcCluskeySolver(int[] outputs)
+        public QuineMcCluskeySolver(params int[] outputs)
         {
             this.outputs = outputs;
             numSignals = MathF.ILogB(MathF.Max(1, outputs.Max())) + 1;
-        }
-
-        public void Solve()
-        {
             Console.WriteLine("NumSignals: " + numSignals);
             outputValues = new Value[outputs.Length];
             for (int i = 0; i < outputs.Length; i++)
@@ -29,118 +27,106 @@ namespace QuineMcCluskey
                 outputValues[i] = new Value(outputs[i], numSignals);
                 //Console.WriteLine(outputValues[i] + "||-----");
             }
-
-            List<Group> groups = new List<Group>();
-            for (int i = 0; i < numSignals + 1; i++)
-            {
-                groups.Add(new Group(i));
-                for (int j = 0; j < outputValues.Length; j++)
-                {
-                    if (outputValues[j].GetGroup() == i)
-                    {
-                        groups[i].Add(outputValues[j]);
-                    }
-                }
-            }
-
-            groups = FindSimilar(groups);
-
-            DEBUG(groups);
         }
 
-        void DEBUG(List<Group> groups)
+        public Iteration Solve()
         {
-            Console.WriteLine("//////////////////////////////");
-            for (int i = 0; i < groups.Count; i++)
+            //Setup Inputiteration
+            Iteration inputIteration = new Iteration();
+            for (int j = 0; j < outputValues.Length; j++)
             {
-                Console.WriteLine("///Group " + i);
-                for (int j = 0; j < groups[i].values.Count; j++)
-                {
-                    Console.WriteLine(groups[i].values[j]);
-                }
-            }
-            Console.WriteLine("//////////////////////////////");
-        }
-
-        private List<Group> FindSimilar(List<Group> groups)
-        {
-            if (groups.Count == 1)
-            {
-                Console.WriteLine("ONLY one group left:" + groups[0].index);
-                return groups;
-            }
-            List<Group> nextIterationGroups = new List<Group>();
-            List<Group> result = new List<Group>();
-            for (int i = 0; i < groups.Count - 1; i++)
-            {
-                nextIterationGroups.Add(CompareGroups(groups[i], groups[i + 1], out List<Group> notUsedValues));
-                result = CombineIterations(result, notUsedValues);
+                inputIteration.Add(outputValues[j]);
             }
 
-            DEBUG(nextIterationGroups);
-
-
-
-            return CombineIterations(result, FindSimilar(nextIterationGroups));
-        }
-
-        //Returns the not used values and group of combined values
-        Group CompareGroups(Group a, Group b, out List<Group> notUsedValues)
-        {
-            if (Math.Abs(a.index - b.index) != 1)
+            Iteration result = new Iteration();
+            while (inputIteration.GetLength() != 0)
             {
-                throw new Exception("Difference was more than one");
-            }
-            a.SetUnused();
-            b.SetUnused();
-
-            Group combinedValues = new Group(Math.Min(a.index, b.index));
-            //notUsedValues = new Group(Math.Min(a.index, b.index));
-
-            for (int i = 0; i < a.values.Count; i++)
-            {
-                Value valA = a.values[i];
-                for (int j = 0; j < b.values.Count; j++)
-                {
-                    Value valB = b.values[j];
-                    if (valA.IsSimilar(valB))
-                    {
-                        a.Use(valA);
-                        b.Use(valB);
-                        combinedValues.Add(new Value(valA, valB));
-                    }
-                }
-            }
-            notUsedValues = new List<Group>() { a.GetUnused(), b.GetUnused() };
-            return combinedValues;
-        }
-
-        List<Group> CombineIterations(List<Group> a, List<Group> b)
-        {
-            List<Group> result = new List<Group>();
-            for (int i = 0; i < a.Count; i++)
-            {
-                result.Add(a[i]);
-            }
-            for (int i = 0; i < b.Count; i++)
-            {
-                if (result.Where((group) => group.index == b[i].index).Count() == 0)
-                    result.Add(b[i]);
-                else
-                {
-                    for (int j = 0; j < b[i].values.Count; j++)
-                    {
-                        result.First((group) => group.index == b[i].index).Add(b[i].values[j]);
-                    }
-                }
-            }
-            for (int i = 0; i < result.Count; i++)
-            {
-                if (result[i].values.Count == 0)
-                    result.Remove(result[i]);
+                inputIteration.GetNextIteration(out Iteration nextIteration, out Iteration notUsedIteration);
+                inputIteration = nextIteration;
+                result.Add(notUsedIteration);
             }
 
             return result;
+        }
+
+        public bool GetEssential(ref Table table, out Value essential)
+        {
+            essential = default;
+
+            int essentialY = -1;
+            for (int x = 0;x < table.width;x++)
+            {
+                bool prime = false;
+                for (int y = 0;y < table.height;y++) 
+                {
+                    int marked = table.Get(x, y);
+                    if (marked == 1)
+                    {
+                        prime = !prime;
+                        if (!prime)
+                        {
+                            break;
+                        }
+                        essential = table.GetImplicant(y);
+                        essentialY = y;
+                    }
+                }
+
+                if(prime)
+                {
+                    table.RemoveEssential(essentialY);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void SolveTable(Iteration results)
+        {
+            Iteration finalResult = new Iteration();
+            Table table = new Table(outputValues, results.GetValues());
+
+            table.DEBUG();
+
+            while (true)
+            {
+                bool changed = false;
+
+                //Essentialität
+                while (GetEssential(ref table, out Value val))
+                {
+                    changed = true;
+                    finalResult.Add(val);
+                }
+
+                Console.WriteLine("After Essentialität:");
+                table.DEBUG();
+
+                //Zeilendominanz
+                while(table.GetRowDominance(ref table))
+                {
+                    changed = true;
+                }
+
+                Console.WriteLine("After Row dominance:");
+                table.DEBUG();
+
+                //Reihendominanz
+                while (table.GetColumnDominance(ref table))
+                {
+                    changed = true;
+                }
+
+                Console.WriteLine("After Col dominance:");
+                table.DEBUG();
+
+                if (!changed || table.GetLength() == 0)
+                    break;
+            }
+            //Verzweigungsmethode
+
+            table.DEBUG();
+            finalResult.DEBUG();
         }
     }
 }
