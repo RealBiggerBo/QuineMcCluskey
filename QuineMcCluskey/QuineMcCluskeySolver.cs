@@ -20,12 +20,11 @@ namespace QuineMcCluskey
         {
             this.outputs = outputs;
             numSignals = MathF.ILogB(MathF.Max(1, outputs.Max())) + 1;
-            Console.WriteLine("NumSignals: " + numSignals);
+
             outputValues = new Value[outputs.Length];
             for (int i = 0; i < outputs.Length; i++)
             {
                 outputValues[i] = new Value(outputs[i], numSignals);
-                //Console.WriteLine(outputValues[i] + "||-----");
             }
         }
 
@@ -39,48 +38,63 @@ namespace QuineMcCluskey
             }
 
             //Phase one
-            Iteration resultPhaseOne = new Iteration();
+            Iteration resultPhaseOne = SolvePhaseOne(inputIteration);
+
+            //Phase two
+            Table table = new Table(outputValues, resultPhaseOne.GetValues());
+            Iteration finalResult = SolvePhaseTwo(table);
+
+            return finalResult;
+        }
+
+        private Iteration SolvePhaseOne(Iteration inputIteration)
+        {
+            Iteration result = new Iteration();
             while (inputIteration.GetLength() != 0)
             {
                 inputIteration.GetNextIteration(out Iteration nextIteration, out Iteration notUsedIteration);
                 inputIteration = nextIteration;
-                resultPhaseOne.Add(notUsedIteration);
+                result.Add(notUsedIteration);
             }
-
-            //Phase two
-            Iteration finalResult = new Iteration();
-            Table table = new Table(outputValues, resultPhaseOne.GetValues());
+            return result;
+        }
+        private Iteration SolvePhaseTwo(Table inputTable)
+        {
+            Iteration result = new Iteration();
 
             while (true)
             {
                 bool changed = false;
 
                 //Essentialität
-                while (GetEssential(ref table, out Value val))
+                while (GetEssential(ref inputTable, out Value val))
                 {
                     changed = true;
-                    finalResult.Add(val);
+                    result.Add(val);
                 }
 
                 //Zeilendominanz
-                while (table.GetRowDominance(ref table))
+                while (inputTable.GetRowDominance(ref inputTable))
                 {
                     changed = true;
                 }
 
                 //Reihendominanz
-                while (table.GetColumnDominance(ref table))
+                while (inputTable.GetColumnDominance(ref inputTable))
                 {
                     changed = true;
                 }
 
-                if (!changed || table.GetLength() == 0)
+                if (!changed || inputTable.GetLength() == 0)
                     break;
             }
             //Verzweigungsmethode
             //TODO
-
-            return finalResult;
+            if(inputTable.GetLength() != 0)
+            {
+                Console.WriteLine("NOT EMPTY TABLE!!!");
+            }
+            return result;
         }
 
         private bool GetEssential(ref Table table, out Value essential)

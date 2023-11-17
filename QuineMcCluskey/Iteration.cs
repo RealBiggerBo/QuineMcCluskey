@@ -15,6 +15,14 @@ namespace QuineMcCluskey
         {
             this.groups = new List<Group>();
         }
+        public Iteration(params Value[] values)
+        {
+            this.groups = new List<Group>();
+            for (int i = 0; i < values.Length; i++)
+            {
+                Add(values[i]);
+            }
+        }
         public Iteration(params Group[] groups)
         {
             this.groups = new List<Group>();
