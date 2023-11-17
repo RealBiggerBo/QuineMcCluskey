@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    internal struct Value
+    public struct Value
     {
         private char[] signals;
 

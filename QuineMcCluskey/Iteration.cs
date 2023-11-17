@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    internal struct Iteration
+    public struct Iteration
     {
         List<Group> groups;
 

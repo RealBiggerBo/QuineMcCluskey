@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    internal class QuineMcCluskeySolver
+    public class QuineMcCluskeySolver
     {
         private int numSignals;
         private int[] outputs;
@@ -31,25 +31,59 @@ namespace QuineMcCluskey
 
         public Iteration Solve()
         {
-            //Setup Inputiteration
+            //Setup InputIteration
             Iteration inputIteration = new Iteration();
             for (int j = 0; j < outputValues.Length; j++)
             {
                 inputIteration.Add(outputValues[j]);
             }
 
-            Iteration result = new Iteration();
+            //Phase one
+            Iteration resultPhaseOne = new Iteration();
             while (inputIteration.GetLength() != 0)
             {
                 inputIteration.GetNextIteration(out Iteration nextIteration, out Iteration notUsedIteration);
                 inputIteration = nextIteration;
-                result.Add(notUsedIteration);
+                resultPhaseOne.Add(notUsedIteration);
             }
 
-            return result;
+            //Phase two
+            Iteration finalResult = new Iteration();
+            Table table = new Table(outputValues, resultPhaseOne.GetValues());
+
+            while (true)
+            {
+                bool changed = false;
+
+                //Essentialität
+                while (GetEssential(ref table, out Value val))
+                {
+                    changed = true;
+                    finalResult.Add(val);
+                }
+
+                //Zeilendominanz
+                while (table.GetRowDominance(ref table))
+                {
+                    changed = true;
+                }
+
+                //Reihendominanz
+                while (table.GetColumnDominance(ref table))
+                {
+                    changed = true;
+                }
+
+                if (!changed || table.GetLength() == 0)
+                    break;
+            }
+            //Verzweigungsmethode
+            //TODO
+
+            return finalResult;
         }
 
-        public bool GetEssential(ref Table table, out Value essential)
+        private bool GetEssential(ref Table table, out Value essential)
         {
             essential = default;
 
@@ -79,54 +113,6 @@ namespace QuineMcCluskey
                 }
             }
             return false;
-        }
-
-        public void SolveTable(Iteration results)
-        {
-            Iteration finalResult = new Iteration();
-            Table table = new Table(outputValues, results.GetValues());
-
-            table.DEBUG();
-
-            while (true)
-            {
-                bool changed = false;
-
-                //Essentialität
-                while (GetEssential(ref table, out Value val))
-                {
-                    changed = true;
-                    finalResult.Add(val);
-                }
-
-                Console.WriteLine("After Essentialität:");
-                table.DEBUG();
-
-                //Zeilendominanz
-                while(table.GetRowDominance(ref table))
-                {
-                    changed = true;
-                }
-
-                Console.WriteLine("After Row dominance:");
-                table.DEBUG();
-
-                //Reihendominanz
-                while (table.GetColumnDominance(ref table))
-                {
-                    changed = true;
-                }
-
-                Console.WriteLine("After Col dominance:");
-                table.DEBUG();
-
-                if (!changed || table.GetLength() == 0)
-                    break;
-            }
-            //Verzweigungsmethode
-
-            table.DEBUG();
-            finalResult.DEBUG();
         }
     }
 }

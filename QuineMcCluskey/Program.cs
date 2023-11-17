@@ -22,7 +22,7 @@ List<int> expectedOutputs = new List<int>();
 
 QuineMcCluskeySolver solver = new QuineMcCluskeySolver(1, 3, 5, 10, 11, 12, 13, 14, 15);
 Iteration result = solver.Solve();
-solver.SolveTable(result);
+result.DEBUG();
 
 
 return;

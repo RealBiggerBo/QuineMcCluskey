@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    internal struct Group
+    public struct Group
     {
         public readonly int index;
         private readonly List<Value> values;

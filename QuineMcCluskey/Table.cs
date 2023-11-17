@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    internal struct Table
+    public struct Table
     {
         private List<int> data;
         private List<Value> implicants;
@@ -146,10 +146,6 @@ namespace QuineMcCluskey
 
         private bool Dominates(List<int> row1, List<int> row2)
         {
-            row1.ForEach((i)=>Console.Write(i));
-            Console.Write(" Dominates?: ");
-            row2.ForEach((i) => Console.Write(i));
-            Console.WriteLine();
             for (int i = 0; i < row1.Count; i++)
             {
                 if (row2[i] == 1 && row1[i] != 1)
