@@ -92,6 +92,16 @@ namespace QuineMcCluskey
             return values.ToArray();
         }
 
+        public int GetDontCareCount()
+        {
+            int count = 0;
+            for (int i = 0; i < groups.Count; i++)
+            {
+                count += groups[i].GetDontCareCount();
+            }
+            return count;
+        }
+
         public Iteration GetUnused()
         {
             Iteration unusedIteration = new Iteration();

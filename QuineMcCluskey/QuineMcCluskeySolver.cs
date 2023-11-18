@@ -92,7 +92,15 @@ namespace QuineMcCluskey
             //TODO
             if(inputTable.GetLength() != 0)
             {
-                Console.WriteLine("NOT EMPTY TABLE!!!");
+                List<Iteration> iterations = new List<Iteration>();
+                for (int i = 0; i < inputTable.height; i++)
+                {
+                    Iteration partial = new Iteration(inputTable.GetImplicant(i));
+                    iterations.Add(partial);
+                    partial.Add(SolvePhaseTwo(new Table(inputTable, i)));
+                }
+                int maxDontCareCount = iterations.Max((iteration) => iteration.GetDontCareCount());
+                result.Add(iterations.First((iteration) => iteration.GetDontCareCount() == maxDontCareCount));
             }
             return result;
         }
@@ -122,7 +130,7 @@ namespace QuineMcCluskey
 
                 if(prime)
                 {
-                    table.RemoveEssential(essentialY);
+                    table.RemovePrimeImplicant(essentialY);
                     return true;
                 }
             }

@@ -72,6 +72,16 @@ namespace QuineMcCluskey
             return values.Count;
         }
 
+        public int GetDontCareCount()
+        {
+            int count = 0;
+            for (int i = 0; i < values.Count; i++)
+            {
+                count += values[i].GetDontCareCount();
+            }
+            return count;
+        }
+
         public void Use(Value val)
         {
             int index = values.IndexOf(val);

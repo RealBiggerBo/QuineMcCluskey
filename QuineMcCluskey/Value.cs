@@ -52,6 +52,16 @@ namespace QuineMcCluskey
             return groupIndex;
         }
 
+        public int GetDontCareCount() 
+        {
+            int count = 0;
+            for (int i = 0; i < signals.Length; i++)
+            {
+                if (signals[i] == '-') count++;
+            }
+            return count;
+        }
+
         public bool IsSimilar(Value other)
         {
             int differences = 0;

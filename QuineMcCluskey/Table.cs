@@ -31,6 +31,14 @@ namespace QuineMcCluskey
                 }
             }
         }
+        public Table(Table original, int excludeRow)
+        {
+            data = new List<int>(original.data);
+            implicants = new List<Value>(original.implicants);
+            this.width = original.width;
+            this.height = original.height;
+            RemovePrimeImplicant(excludeRow);
+        }
 
         public void Set(int x,int y,int value)
         {
@@ -45,7 +53,7 @@ namespace QuineMcCluskey
             return implicants[y];
         }
 
-        public void RemoveEssential(int _y)
+        public void RemovePrimeImplicant(int _y)
         {
             int[] row = data.GetRange(_y * width, width).ToArray();
             int removedColls = 0;
