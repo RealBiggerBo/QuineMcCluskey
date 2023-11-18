@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuineMcCluskey", "QuineMcCl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QMC_UnitTest", "QMC_UnitTest\QMC_UnitTest.csproj", "{F61598EB-FB7F-4496-9EC6-447CE59133D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QMC_Performance", "QMC_Performance\QMC_Performance.csproj", "{F7D86993-AF7A-44C5-B6B4-E8E27826DAB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QMC_Performance", "QMC_Performance\QMC_Performance.csproj", "{F7D86993-AF7A-44C5-B6B4-E8E27826DAB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
