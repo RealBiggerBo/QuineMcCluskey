@@ -7,29 +7,29 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    public struct CharGroup
+    public struct Group_Base
     {
         public readonly int index;
-        private readonly List<CharValue> values;
+        private readonly List<Value_Base> values;
         private readonly List<bool> used;
 
-        public CharGroup(int index)
+        public Group_Base(int index)
         {
             this.index = index;
-            this.values = new List<CharValue>();
+            this.values = new List<Value_Base>();
             this.used = new List<bool>();
         }
-        public CharGroup(CharValue value)
+        public Group_Base(Value_Base value)
         {
             this.index = value.GetGroupIndex();
-            this.values = new List<CharValue>();
+            this.values = new List<Value_Base>();
             this.used = new List<bool>();
             Add(value);
         }
-        public CharGroup(params CharValue[] values)
+        public Group_Base(params Value_Base[] values)
         {
             this.index = values[0].GetGroupIndex();
-            this.values = new List<CharValue>();
+            this.values = new List<Value_Base>();
             this.used = new List<bool>();
             for (int i = 0; i < values.Length; i++)
             {
@@ -37,7 +37,7 @@ namespace QuineMcCluskey
             }
         }
 
-        public void Add(CharValue value)
+        public void Add(Value_Base value)
         {
             if(value.GetGroupIndex() != this.index)
             {
@@ -49,17 +49,17 @@ namespace QuineMcCluskey
                 used.Add(false);
             }
         }
-        public bool Remove(CharValue value)
+        public bool Remove(Value_Base value)
         {
             return values.Remove(value);
         }
-        public CharValue Get(int index)
+        public Value_Base Get(int index)
         {
             return values[index];
         }
-        public CharValue[] GetValues()
+        public Value_Base[] GetValues()
         {
-            List<CharValue> result = new List<CharValue>();
+            List<Value_Base> result = new List<Value_Base>();
             for (int i = 0; i < values.Count; i++)
             {
                 result.Add(Get(i));
@@ -82,7 +82,7 @@ namespace QuineMcCluskey
             return count;
         }
 
-        public void Use(CharValue val)
+        public void Use(Value_Base val)
         {
             int index = values.IndexOf(val);
             if(index != -1)
@@ -99,9 +99,9 @@ namespace QuineMcCluskey
             }
         }
 
-        public CharGroup GetUnused()
+        public Group_Base GetUnused()
         {
-            CharGroup unused = new CharGroup(index);
+            Group_Base unused = new Group_Base(index);
             for(int i = 0; i < values.Count; i++)
             {
                 if (!used[i])
@@ -121,29 +121,29 @@ namespace QuineMcCluskey
             }
         }
     }
-    public struct IntGroup
+    public struct Group_Optimised
     {
         public readonly int index;
-        private readonly List<IntValue> values;
+        private readonly List<Value_Optimised> values;
         private readonly List<bool> used;
 
-        public IntGroup(int index)
+        public Group_Optimised(int index)
         {
             this.index = index;
-            this.values = new List<IntValue>();
+            this.values = new List<Value_Optimised>();
             this.used = new List<bool>();
         }
-        public IntGroup(IntValue value)
+        public Group_Optimised(Value_Optimised value)
         {
             this.index = value.GetGroupIndex();
-            this.values = new List<IntValue>();
+            this.values = new List<Value_Optimised>();
             this.used = new List<bool>();
             Add(value);
         }
-        public IntGroup(params IntValue[] values)
+        public Group_Optimised(params Value_Optimised[] values)
         {
             this.index = values[0].GetGroupIndex();
-            this.values = new List<IntValue>();
+            this.values = new List<Value_Optimised>();
             this.used = new List<bool>();
             for (int i = 0; i < values.Length; i++)
             {
@@ -151,7 +151,7 @@ namespace QuineMcCluskey
             }
         }
 
-        public void Add(IntValue value)
+        public void Add(Value_Optimised value)
         {
             if (value.GetGroupIndex() != this.index)
             {
@@ -163,23 +163,17 @@ namespace QuineMcCluskey
                 used.Add(false);
             }
         }
-        public bool Remove(IntValue value)
+        public bool Remove(Value_Optimised value)
         {
             return values.Remove(value);
         }
-        public IntValue Get(int index)
+        public Value_Optimised Get(int index)
         {
             return values[index];
         }
-        public IntValue[] GetValues()
+        public List<Value_Optimised> GetAllValues()
         {
-            List<IntValue> result = new List<IntValue>();
-            for (int i = 0; i < values.Count; i++)
-            {
-                result.Add(Get(i));
-            }
-
-            return result.ToArray();
+            return new List<Value_Optimised>(values);
         }
         public int GetLength()
         {
@@ -196,7 +190,7 @@ namespace QuineMcCluskey
             return count;
         }
 
-        public void Use(IntValue val)
+        public void Use(Value_Optimised val)
         {
             int index = values.IndexOf(val);
             if (index != -1)
@@ -213,9 +207,9 @@ namespace QuineMcCluskey
             }
         }
 
-        public IntGroup GetUnused()
+        public Group_Optimised GetUnused()
         {
-            IntGroup unused = new IntGroup(index);
+            Group_Optimised unused = new Group_Optimised(index);
             for (int i = 0; i < values.Count; i++)
             {
                 if (!used[i])

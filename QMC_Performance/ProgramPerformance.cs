@@ -11,7 +11,7 @@ namespace QMC_Performance
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<Random_Benchmark>();
+            BenchmarkRunner.Run<QMC_Benchmark>();
         }
     }
 
@@ -54,18 +54,18 @@ namespace QMC_Performance
     [MemoryDiagnoser]
     public class Value_Benchmark
     {
-        CharValue charValA;
-        CharValue charValB;
-        CharValue intValA;
-        CharValue intValB;
+        Value_Base charValA;
+        Value_Base charValB;
+        Value_Base intValA;
+        Value_Base intValB;
 
         [GlobalSetup]
         public void Startup()
         {
-            charValA = new CharValue("0001");
-            charValB = new CharValue("0011");
-            intValA = new CharValue("0001");
-            intValB = new CharValue("0011");
+            charValA = new Value_Base("0001");
+            charValB = new Value_Base("0011");
+            intValA = new Value_Base("0001");
+            intValB = new Value_Base("0011");
         }
 
         [Benchmark]
@@ -85,13 +85,13 @@ namespace QMC_Performance
         [Benchmark]
         public void CreateSimilar_CharValue()
         {
-            CharValue newCharVal = new CharValue(charValA, charValB);
+            Value_Base newCharVal = new Value_Base(charValA, charValB);
         }
 
         [Benchmark]
         public void CreateSimilar_IntValue()
         {
-            CharValue newIntVal = new CharValue(intValA, intValB);
+            Value_Base newIntVal = new Value_Base(intValA, intValB);
         }
 
         [Benchmark]
@@ -139,12 +139,12 @@ namespace QMC_Performance
 
     public class Random_Benchmark
     {
-        List<IntGroup> groupList;
+        List<Group_Optimised> groupList;
 
         [GlobalSetup]
         public void Setup()
         {
-            groupList = [new IntGroup(new IntValue("0001"), new IntValue("0010"), new IntValue("0100"), new IntValue("1000"))];
+            groupList = [new Group_Optimised(new Value_Optimised("0001"), new Value_Optimised("0010"), new Value_Optimised("0100"), new Value_Optimised("1000"))];
         }
 
         [Benchmark]

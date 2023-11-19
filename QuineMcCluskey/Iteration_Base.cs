@@ -7,51 +7,51 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    public struct CharIteration
+    public struct Iteration_Base
     {
-        List<CharGroup> groups;
+        List<Group_Base> groups;
 
-        public CharIteration()
+        public Iteration_Base()
         {
-            this.groups = new List<CharGroup>();
+            this.groups = new List<Group_Base>();
         }
-        public CharIteration(params CharValue[] values)
+        public Iteration_Base(params Value_Base[] values)
         {
-            this.groups = new List<CharGroup>();
+            this.groups = new List<Group_Base>();
             for (int i = 0; i < values.Length; i++)
             {
                 Add(values[i]);
             }
         }
-        public CharIteration(params CharGroup[] groups)
+        public Iteration_Base(params Group_Base[] groups)
         {
-            this.groups = new List<CharGroup>();
+            this.groups = new List<Group_Base>();
             for (int i = 0; i < groups.Length; i++)
             {
                 Add(groups[i]);
             }
         }
 
-        public void Add(CharValue value)
+        public void Add(Value_Base value)
         {
-            CharGroup? matchingGroup = GetGroupByIndex(value.GetGroupIndex());
+            Group_Base? matchingGroup = GetGroupByIndex(value.GetGroupIndex());
             if (matchingGroup == null)
             {
-                groups.Add(new CharGroup(value));
+                groups.Add(new Group_Base(value));
             }
             else
             {
                 matchingGroup?.Add(value);
             }
         }
-        public void Add(CharGroup group)
+        public void Add(Group_Base group)
         {
             for (int i = 0; i < group.GetLength(); i++) 
             {
                 Add(group.Get(i));
             }
         }
-        public void Add(CharIteration iteration)
+        public void Add(Iteration_Base iteration)
         {
             for(int i = 0; i<iteration.groups.Count; i++)
             {
@@ -59,7 +59,7 @@ namespace QuineMcCluskey
             }
         }
 
-        public bool Remove(CharValue value) 
+        public bool Remove(Value_Base value) 
         {
             for(int i = 0; i < groups.Count; i++)
             {
@@ -69,7 +69,7 @@ namespace QuineMcCluskey
             return false;
         }
 
-        public CharGroup? GetGroupByIndex(int index)
+        public Group_Base? GetGroupByIndex(int index)
         {
             if(groups.Where((g) => g.index == index).Count() == 0)
                 return null;
@@ -81,9 +81,9 @@ namespace QuineMcCluskey
         {
             return groups.Count;
         }
-        public CharValue[] GetValues()
+        public Value_Base[] GetValues()
         {
-            List<CharValue> values = new List<CharValue>();
+            List<Value_Base> values = new List<Value_Base>();
             for(int i = 0;i < groups.Count;i++)
             {
                 values.AddRange(groups[i].GetValues());
@@ -102,9 +102,9 @@ namespace QuineMcCluskey
             return count;
         }
 
-        public CharIteration GetUnused()
+        public Iteration_Base GetUnused()
         {
-            CharIteration unusedIteration = new CharIteration();
+            Iteration_Base unusedIteration = new Iteration_Base();
             for (int i = 0; i < groups.Count; i++)
             {
                 unusedIteration.Add(groups[i].GetUnused());
@@ -112,13 +112,13 @@ namespace QuineMcCluskey
             return unusedIteration;
         }
 
-        public void GetNextIteration(out CharIteration nextIteration, out CharIteration notUsedIteration)
+        public void GetNextIteration(out Iteration_Base nextIteration, out Iteration_Base notUsedIteration)
         {
-            nextIteration = new CharIteration();
+            nextIteration = new Iteration_Base();
             for (int i = 0; i < groups.Count; i++)
             {
-                CharGroup groupA = groups[i];
-                CharGroup? groupB = GetGroupByIndex(groupA.index + 1);
+                Group_Base groupA = groups[i];
+                Group_Base? groupB = GetGroupByIndex(groupA.index + 1);
                 if(groupB == null)
                 {
                     
@@ -127,15 +127,15 @@ namespace QuineMcCluskey
                 {
                     for(int j = 0; j < groupA.GetLength(); j++)
                     {
-                        CharValue valA = groupA.Get(j);
+                        Value_Base valA = groupA.Get(j);
                         for(int k = 0; k < groupB?.GetLength(); k++)
                         {
-                            CharValue valB = ((CharGroup)groupB).Get(k);
+                            Value_Base valB = ((Group_Base)groupB).Get(k);
                             if (valA.IsSimilar(valB))
                             {
-                                nextIteration.Add(new CharValue(valA, valB));
+                                nextIteration.Add(new Value_Base(valA, valB));
                                 groupA.Use(valA);
-                                ((CharGroup)groupB).Use(valB);
+                                ((Group_Base)groupB).Use(valB);
                                 groupB.Equals(valB);
                             }
                         }
@@ -157,51 +157,51 @@ namespace QuineMcCluskey
             Console.WriteLine("//////////////////////////////");
         }
     }
-    public struct IntIteration
+    public struct Iteration_Optimised
     {
-        readonly List<IntGroup> groups;
+        readonly List<Group_Optimised> groups;
 
-        public IntIteration()
+        public Iteration_Optimised()
         {
-            this.groups = new List<IntGroup>();
+            this.groups = new List<Group_Optimised>();
         }
-        public IntIteration(params IntValue[] values)
+        public Iteration_Optimised(params Value_Optimised[] values)
         {
-            this.groups = new List<IntGroup>();
+            this.groups = new List<Group_Optimised>();
             for (int i = 0; i < values.Length; i++)
             {
                 Add(values[i]);
             }
         }
-        public IntIteration(params IntGroup[] groups)
+        public Iteration_Optimised(params Group_Optimised[] groups)
         {
-            this.groups = new List<IntGroup>();
+            this.groups = new List<Group_Optimised>();
             for (int i = 0; i < groups.Length; i++)
             {
                 Add(groups[i]);
             }
         }
 
-        public void Add(IntValue value)
+        public void Add(Value_Optimised value)
         {
-            IntGroup? matchingGroup = GetGroupByIndex(value.GetGroupIndex());
+            Group_Optimised? matchingGroup = GetGroupByIndex(value.GetGroupIndex());
             if (matchingGroup == null)
             {
-                groups.Add(new IntGroup(value));
+                groups.Add(new Group_Optimised(value));
             }
             else
             {
                 matchingGroup?.Add(value);
             }
         }
-        public void Add(IntGroup group)
+        public void Add(Group_Optimised group)
         {
             for (int i = 0; i < group.GetLength(); i++)
             {
                 Add(group.Get(i));
             }
         }
-        public void Add(IntIteration iteration)
+        public void Add(Iteration_Optimised iteration)
         {
             for (int i = 0; i < iteration.groups.Count; i++)
             {
@@ -209,7 +209,7 @@ namespace QuineMcCluskey
             }
         }
 
-        public bool Remove(IntValue value)
+        public bool Remove(Value_Optimised value)
         {
             for (int i = 0; i < groups.Count; i++)
             {
@@ -219,7 +219,7 @@ namespace QuineMcCluskey
             return false;
         }
 
-        public IntGroup? GetGroupByIndex(int index)
+        public Group_Optimised? GetGroupByIndex(int index)
         {
             if (groups.Where((g) => g.index == index).Count() == 0)
                 return null;
@@ -231,15 +231,15 @@ namespace QuineMcCluskey
         {
             return groups.Count;
         }
-        public IntValue[] GetValues()
+        public List<Value_Optimised> GetValues()
         {
-            List<IntValue> values = new List<IntValue>();
+            List<Value_Optimised> values = new List<Value_Optimised>();
             for (int i = 0; i < groups.Count; i++)
             {
-                values.AddRange(groups[i].GetValues());
+                values.AddRange(groups[i].GetAllValues());
             }
 
-            return values.ToArray();
+            return values;
         }
 
         public int GetDontCareCount()
@@ -252,9 +252,9 @@ namespace QuineMcCluskey
             return count;
         }
 
-        public IntIteration GetUnused()
+        public Iteration_Optimised GetUnused()
         {
-            IntIteration unusedIteration = new IntIteration();
+            Iteration_Optimised unusedIteration = new Iteration_Optimised();
             for (int i = 0; i < groups.Count; i++)
             {
                 unusedIteration.Add(groups[i].GetUnused());
@@ -262,13 +262,13 @@ namespace QuineMcCluskey
             return unusedIteration;
         }
 
-        public void GetNextIteration(out IntIteration nextIteration, out IntIteration notUsedIteration)
+        public void GetNextIteration(out Iteration_Optimised nextIteration, out Iteration_Optimised notUsedIteration)
         {
-            nextIteration = new IntIteration();
+            nextIteration = new Iteration_Optimised();
             for (int i = 0; i < groups.Count; i++)
             {
-                IntGroup groupA = groups[i];
-                IntGroup? groupB = GetGroupByIndex(groupA.index + 1);
+                Group_Optimised groupA = groups[i];
+                Group_Optimised? groupB = GetGroupByIndex(groupA.index + 1);
                 if (groupB == null)
                 {
 
@@ -277,15 +277,15 @@ namespace QuineMcCluskey
                 {
                     for (int j = 0; j < groupA.GetLength(); j++)
                     {
-                        IntValue valA = groupA.Get(j);
+                        Value_Optimised valA = groupA.Get(j);
                         for (int k = 0; k < groupB?.GetLength(); k++)
                         {
-                            IntValue valB = ((IntGroup)groupB).Get(k);
+                            Value_Optimised valB = ((Group_Optimised)groupB).Get(k);
                             if (valA.IsSimilar(valB))
                             {
-                                nextIteration.Add(new IntValue(valA, valB));
+                                nextIteration.Add(new Value_Optimised(valA, valB));
                                 groupA.Use(valA);
-                                ((IntGroup)groupB).Use(valB);
+                                ((Group_Optimised)groupB).Use(valB);
                                 groupB.Equals(valB);
                             }
                         }

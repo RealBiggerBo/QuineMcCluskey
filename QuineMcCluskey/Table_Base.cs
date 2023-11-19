@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    public struct CharTable
+    public struct Table_Base
     {
         private List<int> data;
-        private List<CharValue> implicants;
+        private List<Value_Base> implicants;
         public int width;
         public int height;
 
-        public CharTable(CharValue[] outputs, CharValue[] implicants)
+        public Table_Base(Value_Base[] outputs, Value_Base[] implicants)
         {
             data = new List<int>();
             this.implicants = implicants.ToList();
@@ -31,10 +31,10 @@ namespace QuineMcCluskey
                 }
             }
         }
-        public CharTable(CharTable original, int excludeRow)
+        public Table_Base(Table_Base original, int excludeRow)
         {
             data = new List<int>(original.data);
-            implicants = new List<CharValue>(original.implicants);
+            implicants = new List<Value_Base>(original.implicants);
             this.width = original.width;
             this.height = original.height;
             RemovePrimeImplicant(excludeRow);
@@ -48,7 +48,7 @@ namespace QuineMcCluskey
         {
             return data[y * width + x];
         }
-        public CharValue GetImplicant(int y)
+        public Value_Base GetImplicant(int y)
         {
             return implicants[y];
         }
@@ -78,7 +78,7 @@ namespace QuineMcCluskey
             implicants.RemoveAt(_y);
         }
 
-        public bool GetRowDominance(ref CharTable table)
+        public bool GetRowDominance(ref Table_Base table)
         {
             for(int y = 0; y < height; y++)
             {
@@ -98,7 +98,7 @@ namespace QuineMcCluskey
             return false;
         }
 
-        public bool GetColumnDominance(ref CharTable table)
+        public bool GetColumnDominance(ref Table_Base table)
         {
             for (int x = 0;x < width; x++)
             {
@@ -178,19 +178,19 @@ namespace QuineMcCluskey
                 Console.WriteLine("EMPTY");
         }
     }
-    public struct IntTable
+    public struct Table_Optimised
     {
         private List<int> data;
-        private List<IntValue> implicants;
+        private List<Value_Optimised> implicants;
         public int width;
         public int height;
 
-        public IntTable(IntValue[] outputs, IntValue[] implicants)
+        public Table_Optimised(Value_Optimised[] outputs, List<Value_Optimised> implicants)
         {
             data = new List<int>();
-            this.implicants = implicants.ToList();
+            this.implicants = new List<Value_Optimised>(implicants);
             width = outputs.Length;
-            height = implicants.Length;
+            height = implicants.Count;
 
             for (int i = 0; i < height; i++)
             {
@@ -203,10 +203,10 @@ namespace QuineMcCluskey
                 }
             }
         }
-        public IntTable(IntTable original, int excludeRow)
+        public Table_Optimised(Table_Optimised original, int excludeRow)
         {
             data = new List<int>(original.data);
-            implicants = new List<IntValue>(original.implicants);
+            implicants = new List<Value_Optimised>(original.implicants);
             this.width = original.width;
             this.height = original.height;
             RemovePrimeImplicant(excludeRow);
@@ -220,7 +220,7 @@ namespace QuineMcCluskey
         {
             return data[y * width + x];
         }
-        public IntValue GetImplicant(int y)
+        public Value_Optimised GetImplicant(int y)
         {
             return implicants[y];
         }
@@ -250,7 +250,7 @@ namespace QuineMcCluskey
             implicants.RemoveAt(_y);
         }
 
-        public bool GetRowDominance(ref IntTable table)
+        public bool GetRowDominance(ref Table_Optimised table)
         {
             for (int y = 0; y < height; y++)
             {
@@ -270,7 +270,7 @@ namespace QuineMcCluskey
             return false;
         }
 
-        public bool GetColumnDominance(ref IntTable table)
+        public bool GetColumnDominance(ref Table_Optimised table)
         {
             for (int x = 0; x < width; x++)
             {

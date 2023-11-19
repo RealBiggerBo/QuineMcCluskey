@@ -12,18 +12,18 @@ namespace QMC_UnitTest
         {
             //Arrange
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 3, 5, 10, 11, 12, 13, 14, 15);
-            IntIteration expectedIteration = new IntIteration(new IntValue("00-1"), new IntValue("0-01"), new IntValue("1-1-"), new IntValue("11--"));
+            Iteration_Optimised expectedIteration = new Iteration_Optimised(new Value_Optimised("00-1"), new Value_Optimised("0-01"), new Value_Optimised("1-1-"), new Value_Optimised("11--"));
 
             //Act
-            IntIteration actualResult = solver.Solve();
+            Iteration_Optimised actualResult = solver.Solve();
 
             //Assert
-            IntValue[] expected = expectedIteration.GetValues();
-            IntValue[] actual = actualResult.GetValues();
+            Value_Optimised[] expected = expectedIteration.GetValues().ToArray();
+            Value_Optimised[] actual = actualResult.GetValues().ToArray();
 
             for (int i = 0; i < expected.Length; i++)
             {
-                Assert.Contains<IntValue>(expected[i], actual);
+                Assert.Contains<Value_Optimised>(expected[i], actual);
             }
         }
 
@@ -32,20 +32,20 @@ namespace QMC_UnitTest
         {
             //Arrange
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 33, 41, 43, 47, 53, 59, 61);
-            IntIteration expectedIteration = new IntIteration(new IntValue("00001-"), new IntValue("0-00-1"),
-                new IntValue("101-11"), new IntValue("11-101"), new IntValue("1-1011"), new IntValue("00-011"),
-                new IntValue("10-001"), new IntValue("000--1"), new IntValue("0-1101"), new IntValue("01-111"));
+            Iteration_Optimised expectedIteration = new Iteration_Optimised(new Value_Optimised("00001-"), new Value_Optimised("0-00-1"),
+                new Value_Optimised("101-11"), new Value_Optimised("11-101"), new Value_Optimised("1-1011"), new Value_Optimised("00-011"),
+                new Value_Optimised("10-001"), new Value_Optimised("000--1"), new Value_Optimised("0-1101"), new Value_Optimised("01-111"));
 
             //Act
-            IntIteration actualResult = solver.Solve();
+            Iteration_Optimised actualResult = solver.Solve();
 
             //Assert
-            IntValue[] expected = expectedIteration.GetValues();
-            IntValue[] actual = actualResult.GetValues();
+            Value_Optimised[] expected = expectedIteration.GetValues().ToArray();
+            Value_Optimised[] actual = actualResult.GetValues().ToArray();
 
             for (int i = 0; i < expected.Length; i++)
             {
-                Assert.Contains<IntValue>(expected[i], actual);
+                Assert.Contains<Value_Optimised>(expected[i], actual);
             }
         }
     }
@@ -56,12 +56,12 @@ namespace QMC_UnitTest
         public void EqualityTestCase()
         {
             //Arrange
-            IntValue valA = new IntValue("0000");
-            IntValue valB = new IntValue("1111");
+            Value_Optimised valA = new Value_Optimised("0000");
+            Value_Optimised valB = new Value_Optimised("1111");
 
-            IntValue _valA = new IntValue(0, 4);
-            IntValue _valB = new IntValue(15, 4);
-            IntValue valC = new IntValue("----");
+            Value_Optimised _valA = new Value_Optimised(0, 4);
+            Value_Optimised _valB = new Value_Optimised(15, 4);
+            Value_Optimised valC = new Value_Optimised("----");
 
             //Act
 
@@ -79,15 +79,15 @@ namespace QMC_UnitTest
         public void IsSimilarTestCase()
         {
             //Arrange
-            IntValue valA = new IntValue("0000");//Group 0
-            IntValue valAB = new IntValue("000-");
-            IntValue valB = new IntValue("0001");//Group 1
-            IntValue valBC = new IntValue("00-1");
-            IntValue valBD = new IntValue("0-01");
-            IntValue valG = new IntValue("111-");//Group 3
-            IntValue valH = new IntValue("1101");
-            IntValue valHI = new IntValue("11-1");
-            IntValue valI = new IntValue("1111");//Group 4
+            Value_Optimised valA = new Value_Optimised("0000");//Group 0
+            Value_Optimised valAB = new Value_Optimised("000-");
+            Value_Optimised valB = new Value_Optimised("0001");//Group 1
+            Value_Optimised valBC = new Value_Optimised("00-1");
+            Value_Optimised valBD = new Value_Optimised("0-01");
+            Value_Optimised valG = new Value_Optimised("111-");//Group 3
+            Value_Optimised valH = new Value_Optimised("1101");
+            Value_Optimised valHI = new Value_Optimised("11-1");
+            Value_Optimised valI = new Value_Optimised("1111");//Group 4
 
 
             //Act
@@ -111,36 +111,36 @@ namespace QMC_UnitTest
         public void CombineValuesTestCase()
         {
             //Arrange
-            IntValue valA = new IntValue("0000");
-            IntValue valB = new IntValue("0001");
-            IntValue valC = new IntValue("0011");
-            IntValue valD = new IntValue("0101");
-            IntValue valE = new IntValue("101-");
-            IntValue valF = new IntValue("11-0");
-            IntValue valG = new IntValue("111-");
-            IntValue valH = new IntValue("1101");
-            IntValue valI = new IntValue("1111");
+            Value_Optimised valA = new Value_Optimised("0000");
+            Value_Optimised valB = new Value_Optimised("0001");
+            Value_Optimised valC = new Value_Optimised("0011");
+            Value_Optimised valD = new Value_Optimised("0101");
+            Value_Optimised valE = new Value_Optimised("101-");
+            Value_Optimised valF = new Value_Optimised("11-0");
+            Value_Optimised valG = new Value_Optimised("111-");
+            Value_Optimised valH = new Value_Optimised("1101");
+            Value_Optimised valI = new Value_Optimised("1111");
 
-            IntValue valAB = new IntValue("000-");
-            IntValue valBC = new IntValue("00-1");
-            IntValue valBD = new IntValue("0-01");
-            IntValue valDH = new IntValue("-101");
-            IntValue valEG = new IntValue("1-1-");
-            IntValue valHI = new IntValue("11-1");
+            Value_Optimised valAB = new Value_Optimised("000-");
+            Value_Optimised valBC = new Value_Optimised("00-1");
+            Value_Optimised valBD = new Value_Optimised("0-01");
+            Value_Optimised valDH = new Value_Optimised("-101");
+            Value_Optimised valEG = new Value_Optimised("1-1-");
+            Value_Optimised valHI = new Value_Optimised("11-1");
 
             //Act
-            IntValue _valAB = new IntValue(valA, valB);
-            IntValue _valBA = new IntValue(valB, valA);
-            IntValue _valBC = new IntValue(valB, valC);
-            IntValue _valCB = new IntValue(valC, valB);
-            IntValue _valBD = new IntValue(valB, valD);
-            IntValue _valDB = new IntValue(valD, valB);
-            IntValue _valDH = new IntValue(valD, valH);
-            IntValue _valHD = new IntValue(valH, valD);
-            IntValue _valEG = new IntValue(valE, valG);
-            IntValue _valGE = new IntValue(valG, valE);
-            IntValue _valHI = new IntValue(valH, valI);
-            IntValue _valIH = new IntValue(valI, valH);
+            Value_Optimised _valAB = new Value_Optimised(valA, valB);
+            Value_Optimised _valBA = new Value_Optimised(valB, valA);
+            Value_Optimised _valBC = new Value_Optimised(valB, valC);
+            Value_Optimised _valCB = new Value_Optimised(valC, valB);
+            Value_Optimised _valBD = new Value_Optimised(valB, valD);
+            Value_Optimised _valDB = new Value_Optimised(valD, valB);
+            Value_Optimised _valDH = new Value_Optimised(valD, valH);
+            Value_Optimised _valHD = new Value_Optimised(valH, valD);
+            Value_Optimised _valEG = new Value_Optimised(valE, valG);
+            Value_Optimised _valGE = new Value_Optimised(valG, valE);
+            Value_Optimised _valHI = new Value_Optimised(valH, valI);
+            Value_Optimised _valIH = new Value_Optimised(valI, valH);
 
 
             //Assert
@@ -162,22 +162,22 @@ namespace QMC_UnitTest
         public void GroupIndexTestCase()
         {
             //Arrange
-            IntValue valA = new IntValue("0000");
-            IntValue valB = new IntValue("0001");
-            IntValue valC = new IntValue("0011");
-            IntValue valD = new IntValue("0101");
-            IntValue valE = new IntValue("101-");
-            IntValue valF = new IntValue("11-0");
-            IntValue valG = new IntValue("111-");
-            IntValue valH = new IntValue("1101");
-            IntValue valI = new IntValue("1111");
+            Value_Optimised valA = new Value_Optimised("0000");
+            Value_Optimised valB = new Value_Optimised("0001");
+            Value_Optimised valC = new Value_Optimised("0011");
+            Value_Optimised valD = new Value_Optimised("0101");
+            Value_Optimised valE = new Value_Optimised("101-");
+            Value_Optimised valF = new Value_Optimised("11-0");
+            Value_Optimised valG = new Value_Optimised("111-");
+            Value_Optimised valH = new Value_Optimised("1101");
+            Value_Optimised valI = new Value_Optimised("1111");
 
-            IntValue valAB = new IntValue("000-");
-            IntValue valBC = new IntValue("00-1");
-            IntValue valBD = new IntValue("0-01");
-            IntValue valDH = new IntValue("-101");
-            IntValue valEG = new IntValue("1-1-");
-            IntValue valHI = new IntValue("11-1");
+            Value_Optimised valAB = new Value_Optimised("000-");
+            Value_Optimised valBC = new Value_Optimised("00-1");
+            Value_Optimised valBD = new Value_Optimised("0-01");
+            Value_Optimised valDH = new Value_Optimised("-101");
+            Value_Optimised valEG = new Value_Optimised("1-1-");
+            Value_Optimised valHI = new Value_Optimised("11-1");
 
             //Act
             int A = valA.GetGroupIndex();
@@ -219,24 +219,24 @@ namespace QMC_UnitTest
         public void ImpliesTestCase()
         {
             //Arrange
-            IntValue[] outputValues = new IntValue[] {
-                new IntValue(1, 4),
-                new IntValue(3, 4),
-                new IntValue(5, 4),
-                new IntValue(10, 4),
-                new IntValue(11, 4),
-                new IntValue(12, 4),
-                new IntValue(13, 4),
-                new IntValue(14, 4),
-                new IntValue(15, 4)
+            Value_Optimised[] outputValues = new Value_Optimised[] {
+                new Value_Optimised(1, 4),
+                new Value_Optimised(3, 4),
+                new Value_Optimised(5, 4),
+                new Value_Optimised(10, 4),
+                new Value_Optimised(11, 4),
+                new Value_Optimised(12, 4),
+                new Value_Optimised(13, 4),
+                new Value_Optimised(14, 4),
+                new Value_Optimised(15, 4)
             };
-            IntValue[] implicants = new IntValue[] {
-                new IntValue("00-1"),
-                new IntValue("0-01"),
-                new IntValue("-011"),
-                new IntValue("-101"),
-                new IntValue("1-1-"),
-                new IntValue("11--")
+            Value_Optimised[] implicants = new Value_Optimised[] {
+                new Value_Optimised("00-1"),
+                new Value_Optimised("0-01"),
+                new Value_Optimised("-011"),
+                new Value_Optimised("-101"),
+                new Value_Optimised("1-1-"),
+                new Value_Optimised("11--")
             };
             int[] data = new int[] {
                 1,1,0,0,0,0,0,0,0,
@@ -247,7 +247,7 @@ namespace QMC_UnitTest
                 0,0,0,0,0,1,1,1,1};
 
             //Act
-            IntTable table = new IntTable(outputValues, implicants);
+            Table_Optimised table = new Table_Optimised(outputValues, implicants.ToList());
 
             //Assert
             for (int y = 0; y < 6; y++)

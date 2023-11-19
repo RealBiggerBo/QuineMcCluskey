@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
-    public readonly struct CharValue
+    public readonly struct Value_Base
     {
         private readonly char[] signals;
 
-        public CharValue(int num, int numSignals)
+        public Value_Base(int num, int numSignals)
         {
             signals = new char[numSignals];
             for (int i = 0; i < numSignals; i++)
@@ -21,7 +21,7 @@ namespace QuineMcCluskey
                 num = num / 2;
             }
         }
-        public CharValue(CharValue a, CharValue b)
+        public Value_Base(Value_Base a, Value_Base b)
         {
             signals = new char[a.signals.Length];
             for (int i = 0; i < a.signals.Length; i++)
@@ -37,7 +37,7 @@ namespace QuineMcCluskey
             }
             //Console.WriteLine(a + " and " + b + " becomes: " + this);
         }
-        public CharValue(string val)
+        public Value_Base(string val)
         {
             signals = val.ToCharArray();
             Array.Reverse(signals);
@@ -63,7 +63,7 @@ namespace QuineMcCluskey
             return count;
         }
 
-        public bool IsSimilar(CharValue other)
+        public bool IsSimilar(Value_Base other)
         {
             int differences = 0;
             for (int i = 0; i < signals.Length; i++)
@@ -77,7 +77,7 @@ namespace QuineMcCluskey
             return true;
         }
 
-        public bool Implies(CharValue other)
+        public bool Implies(Value_Base other)
         {
             //a=>b
             for (int i = 0; i < signals.Length; i++)
@@ -102,7 +102,7 @@ namespace QuineMcCluskey
         {
             if (obj?.GetType() == this.GetType())
             {
-                CharValue other = (CharValue)obj;
+                Value_Base other = (Value_Base)obj;
                 for (int i = 0; i < this.signals.Length; i++)
                 {
                     if (this.signals[i] != other.signals[i]) return false;
@@ -113,28 +113,27 @@ namespace QuineMcCluskey
         }
     }
 
-    public readonly struct IntValue
+    public readonly struct Value_Optimised
     {
         private readonly int numSignals;
         private readonly int signals;
 
-        public IntValue(int num, int numSignals)
+        public Value_Optimised(int num, int numSignals)
         {
             this.numSignals = numSignals;
             this.signals = 0;
             for (int i = 0; i < numSignals; i++)
             {
-                //signals = signals << 2;
                 signals |= num % 2 == 0 ? (0b01 << (2 * i)) : (0b10 << (2 * i));
                 num /= 2;
             }
         }
-        public IntValue(IntValue a, IntValue b)
+        public Value_Optimised(Value_Optimised a, Value_Optimised b)
         {
             this.numSignals = a.numSignals;
             this.signals = a.signals | b.signals;
         }
-        public IntValue(string val)
+        public Value_Optimised(string val)
         {
             char[] chars = val.ToCharArray();
 
@@ -179,7 +178,7 @@ namespace QuineMcCluskey
             return count;
         }
 
-        public bool IsSimilar(IntValue other)
+        public bool IsSimilar(Value_Optimised other)
         {
             int differences = 0;
             int valueA = this.signals;
@@ -197,7 +196,7 @@ namespace QuineMcCluskey
             return true;
         }
 
-        public bool Implies(IntValue other)
+        public bool Implies(Value_Optimised other)
         {
             //a=>b
             int impliedValue = ~this.signals | (this.signals & other.signals);
@@ -233,7 +232,7 @@ namespace QuineMcCluskey
         {
             if (obj?.GetType() == this.GetType())
             {
-                return this.signals == ((IntValue)obj).signals;
+                return this.signals == ((Value_Optimised)obj).signals;
             }
             return false;
         }

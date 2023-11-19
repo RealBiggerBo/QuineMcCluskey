@@ -16,7 +16,7 @@
 //QuineMcCluskeySolver solver = new QuineMcCluskeySolver(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 //QuineMcCluskeySolver solver = new QuineMcCluskeySolver(2, 3, 7, 9, 11, 13);
 IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 3, 5, 10, 11, 12, 13, 14, 15);
-IntIteration result = solver.Solve();
+Iteration_Optimised result = solver.Solve();
 result.DEBUG();
 
 
