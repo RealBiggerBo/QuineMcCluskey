@@ -1,4 +1,5 @@
 using QuineMcCluskey;
+using System.Collections;
 using System.Data;
 using System.Security.Cryptography.X509Certificates;
 
@@ -15,7 +16,7 @@ namespace QMC_UnitTest
             Iteration_Optimised expectedIteration = new Iteration_Optimised(new Value_Optimised("00-1"), new Value_Optimised("0-01"), new Value_Optimised("1-1-"), new Value_Optimised("11--"));
 
             //Act
-            Iteration_Optimised actualResult = solver.Solve();
+            Iteration_Optimised actualResult = solver.Solve().Result;
 
             //Assert
             Value_Optimised[] expected = expectedIteration.GetValues().ToArray();
@@ -37,7 +38,7 @@ namespace QMC_UnitTest
                 new Value_Optimised("10-001"), new Value_Optimised("000--1"), new Value_Optimised("0-1101"), new Value_Optimised("01-111"));
 
             //Act
-            Iteration_Optimised actualResult = solver.Solve();
+            Iteration_Optimised actualResult = solver.Solve().Result;
 
             //Assert
             Value_Optimised[] expected = expectedIteration.GetValues().ToArray();
@@ -141,7 +142,6 @@ namespace QMC_UnitTest
             Value_Optimised _valGE = new Value_Optimised(valG, valE);
             Value_Optimised _valHI = new Value_Optimised(valH, valI);
             Value_Optimised _valIH = new Value_Optimised(valI, valH);
-
 
             //Assert
             Assert.Equal(valAB, _valAB);
@@ -255,6 +255,207 @@ namespace QMC_UnitTest
                 for (int x = 0; x < 9; x++)
                 {
                     Assert.Equal(data[y * 9 + x] == 1, outputValues[x].Implies(implicants[y]));
+                }
+            }
+        }
+    }
+
+    public class TableTestClass
+    {
+        [Fact]
+        public void CtorTestCase()
+        {
+            //Arrange
+            Value_Optimised[] outputs = [
+                new Value_Optimised("0001"), new Value_Optimised("0011"), new Value_Optimised("0101"), new Value_Optimised("1010"),
+                new Value_Optimised("1011"), new Value_Optimised("1100"), new Value_Optimised("1101"), new Value_Optimised("1110"),
+                new Value_Optimised("1111"),
+            ];
+            List<Value_Optimised> implicants = [
+                new Value_Optimised("00-1"),
+                new Value_Optimised("0-01"),
+                new Value_Optimised("-011"),
+                new Value_Optimised("-101"),
+                new Value_Optimised("1-1-"),
+                new Value_Optimised("11--"),
+            ];
+
+            //Act
+            Table_Optimised table1 = new Table_Optimised(outputs, implicants);
+            Table_Optimised table2 = new Table_Optimised(table1, 5);
+
+            //Assert
+            Assert.Equal(6, table1.height);
+            Assert.Equal(9, table1.width);
+
+            Assert.Equal(5, table2.height);
+            Assert.Equal(5, table2.width);
+
+            Assert.IsType<bool>(table1.Get(8, 5));
+            Assert.IsType<bool>(table2.Get(4, 4));
+            Assert.Throws<ArgumentOutOfRangeException>(() => table1.Get(9, 5));
+            //Assert.Throws<ArgumentOutOfRangeException>(() => table2.Get(5, 4));
+        }
+
+        [Fact]
+        public void RemovePrimeImplicantTestCase()
+        {
+            //Arrange
+            Value_Optimised[] outputs = [
+                new Value_Optimised("0001"),
+                new Value_Optimised("0011"),
+                new Value_Optimised("0101"),
+                new Value_Optimised("1010"),
+                new Value_Optimised("1011"),
+                new Value_Optimised("1100"),
+                new Value_Optimised("1101"),
+                new Value_Optimised("1110"),
+                new Value_Optimised("1111"),
+            ];
+            List<Value_Optimised> implicants = [
+                new Value_Optimised("00-1"),
+                new Value_Optimised("0-01"),
+                new Value_Optimised("-011"),
+                new Value_Optimised("-101"),
+                new Value_Optimised("1-1-"),
+                new Value_Optimised("11--"),
+            ];
+            Table_Optimised table = new Table_Optimised(outputs, implicants);
+
+            int[] expectedData = new int[]
+            {
+                1,1,0,0,0,
+                1,0,1,0,0,
+                0,1,0,0,1,
+                0,0,1,0,0,
+                0,0,0,1,1,
+            };
+
+            //Act
+            table.RemovePrimeImplicant(5);
+
+            //Assert
+            Assert.Equal(5, table.width);
+            Assert.Equal(5, table.height);
+
+            string debug = "";
+            for (int y = 0; y < table.height; y++)
+            {
+                for (int x = 0; x < table.width; x++)
+                {
+                    debug += " " + (table.Get(x, y) ? 1 : 0);
+                }
+                debug += "\n";
+            }
+
+            for (int y = 0; y < table.height; y++)
+            {
+                for (int x = 0; x < table.width; x++)
+                {
+                    bool expected = expectedData[y*table.width+x] == 1;
+                    Assert.Equal(expected, table.Get(x, y));
+                }
+            }
+        }
+
+        [Fact]
+        public void GetRowDominanceTestCase()
+        {
+            //Arrange
+            Value_Optimised[] outputs = [
+                new Value_Optimised("0001"),
+                new Value_Optimised("0011"),
+                new Value_Optimised("0101"),
+            ];
+            List<Value_Optimised> implicants = [
+                new Value_Optimised("00-1"),
+                new Value_Optimised("0-01"),
+                new Value_Optimised("-011"),
+                new Value_Optimised("-101"),
+            ];
+            Table_Optimised table = new Table_Optimised(outputs, implicants);
+
+            int[] expectedData = new int[]
+            {
+                1,1,0,
+                1,0,1,
+            };
+
+            //Act
+            table.RemoveDominatedRow();
+            table.RemoveDominatedRow();
+
+            //Assert
+            Assert.Equal(3, table.width);
+            Assert.Equal(2, table.height);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => table.GetImplicant(2));
+            Assert.IsType<Value_Optimised>(table.GetImplicant(1));
+
+            string debug = "";
+            for (int y = 0; y < table.height; y++)
+            {
+                for (int x = 0; x < table.width; x++)
+                {
+                    debug += " " + (table.Get(x, y) ? 1 : 0);
+                }
+                debug += "\n";
+            }
+
+            for (int y = 0; y < table.height; y++)
+            {
+                for (int x = 0; x < table.width; x++)
+                {
+                    bool expected = expectedData[y * table.width + x] == 1;
+                    Assert.Equal(expected, table.Get(x, y));
+                }
+            }
+        }
+
+        [Fact]
+        public void GetColumnDominanceTestCase()
+        {
+            //Arrange
+            Value_Optimised[] outputs = [
+                new Value_Optimised("0001"),
+                new Value_Optimised("0011"),
+                new Value_Optimised("0101"),
+            ];
+            List<Value_Optimised> implicants = [
+                new Value_Optimised("00-1"),
+                new Value_Optimised("0-01"),
+            ];
+            Table_Optimised table = new Table_Optimised(outputs, implicants);
+
+            int[] expectedData = new int[]
+            {
+                1,0,
+                0,1,
+            };
+
+            //Act
+            table.RemoveDominatedCol();
+
+            //Assert
+            Assert.Equal(2, table.width);
+            Assert.Equal(2, table.height);
+
+            string debug = "";
+            for (int y = 0; y < table.height; y++)
+            {
+                for (int x = 0; x < table.width; x++)
+                {
+                    debug += " " + (table.Get(x, y) ? 1 : 0);
+                }
+                debug += "\n";
+            }
+
+            for (int y = 0; y < table.height; y++)
+            {
+                for (int x = 0; x < table.width; x++)
+                {
+                    bool expected = expectedData[y * table.width + x] == 1;
+                    Assert.Equal(expected, table.Get(x, y));
                 }
             }
         }

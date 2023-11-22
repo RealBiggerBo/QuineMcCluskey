@@ -56,16 +56,16 @@ namespace QMC_Performance
     {
         Value_Base charValA;
         Value_Base charValB;
-        Value_Base intValA;
-        Value_Base intValB;
+        Value_Optimised intValA;
+        Value_Optimised intValB;
 
         [GlobalSetup]
         public void Startup()
         {
             charValA = new Value_Base("0001");
             charValB = new Value_Base("0011");
-            intValA = new Value_Base("0001");
-            intValB = new Value_Base("0011");
+            intValA = new Value_Optimised("0001");
+            intValB = new Value_Optimised("0011");
         }
 
         [Benchmark]
@@ -91,7 +91,7 @@ namespace QMC_Performance
         [Benchmark]
         public void CreateSimilar_IntValue()
         {
-            Value_Base newIntVal = new Value_Base(intValA, intValB);
+            Value_Optimised newIntVal = new Value_Optimised(intValA, intValB);
         }
 
         [Benchmark]
@@ -139,24 +139,16 @@ namespace QMC_Performance
 
     public class Random_Benchmark
     {
-        List<Group_Optimised> groupList;
-
-        [GlobalSetup]
-        public void Setup()
+        [Benchmark]
+        public void BitAnd()
         {
-            groupList = [new Group_Optimised(new Value_Optimised("0001"), new Value_Optimised("0010"), new Value_Optimised("0100"), new Value_Optimised("1000"))];
+            int res = 13 & 0b1;
         }
 
         [Benchmark]
-        public void Any()
+        public void Modulo()
         {
-            bool b = groupList.Any();
-        }
-
-        [Benchmark]
-        public void Count()
-        {
-            bool b = groupList.Count() == 0;
+            int res = 13 % 2;
         }
     }
 }

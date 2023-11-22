@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
+#pragma warning disable
     public struct Group_Base
     {
         public readonly int index;
@@ -121,30 +122,27 @@ namespace QuineMcCluskey
             }
         }
     }
-    public struct Group_Optimised
+#pragma warning restore
+    public readonly struct Group_Optimised
     {
         public readonly int index;
         private readonly List<Value_Optimised> values;
-        private readonly List<bool> used;
 
         public Group_Optimised(int index)
         {
             this.index = index;
             this.values = new List<Value_Optimised>();
-            this.used = new List<bool>();
         }
         public Group_Optimised(Value_Optimised value)
         {
             this.index = value.GetGroupIndex();
             this.values = new List<Value_Optimised>();
-            this.used = new List<bool>();
             Add(value);
         }
         public Group_Optimised(params Value_Optimised[] values)
         {
             this.index = values[0].GetGroupIndex();
             this.values = new List<Value_Optimised>();
-            this.used = new List<bool>();
             for (int i = 0; i < values.Length; i++)
             {
                 Add(values[i]);
@@ -160,7 +158,6 @@ namespace QuineMcCluskey
             if (!values.Contains(value))
             {
                 values.Add(value);
-                used.Add(false);
             }
         }
         public bool Remove(Value_Optimised value)
@@ -192,10 +189,10 @@ namespace QuineMcCluskey
 
         public void Use(Value_Optimised val)
         {
-            int index = values.IndexOf(val);
-            if (index != -1)
+            int idx = values.IndexOf(val);
+            if (idx != -1)
             {
-                used[index] = true;
+                values[idx] = new Value_Optimised(values[idx], true);
             }
         }
 
@@ -203,7 +200,7 @@ namespace QuineMcCluskey
         {
             for (int i = 0; i < values.Count; i++)
             {
-                used[i] = false;
+                values[i] = new Value_Optimised(values[i], false);
             }
         }
 
@@ -212,7 +209,7 @@ namespace QuineMcCluskey
             Group_Optimised unused = new Group_Optimised(index);
             for (int i = 0; i < values.Count; i++)
             {
-                if (!used[i])
+                if (!values[i].WasUsed())
                 {
                     unused.Add(values[i]);
                 }

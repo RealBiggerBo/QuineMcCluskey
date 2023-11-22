@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
+#pragma warning disable
     public struct Iteration_Base
     {
         List<Group_Base> groups;
@@ -157,9 +158,10 @@ namespace QuineMcCluskey
             Console.WriteLine("//////////////////////////////");
         }
     }
-    public struct Iteration_Optimised
+#pragma warning restore
+    public readonly struct Iteration_Optimised
     {
-        readonly List<Group_Optimised> groups;
+        private readonly List<Group_Optimised> groups;
 
         public Iteration_Optimised()
         {

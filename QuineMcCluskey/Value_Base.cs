@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
+#pragma warning disable
     public readonly struct Value_Base
     {
         private readonly char[] signals;
@@ -112,8 +113,8 @@ namespace QuineMcCluskey
             return false;
         }
     }
-
-    public readonly struct Value_Optimised
+#pragma warning restore
+    public readonly struct Value_Optimised : IEquatable<Value_Optimised>
     {
         private readonly int numSignals;
         private readonly int signals;
@@ -127,11 +128,20 @@ namespace QuineMcCluskey
                 signals |= num % 2 == 0 ? (0b01 << (2 * i)) : (0b10 << (2 * i));
                 num /= 2;
             }
+            signals <<=1;
+        }
+        public Value_Optimised(Value_Optimised baseValue, bool used)
+        {
+            this.numSignals = baseValue.numSignals;
+            if (used)
+                this.signals = baseValue.signals | 0b1;
+            else
+                this.signals = baseValue.signals & ~0b1;
         }
         public Value_Optimised(Value_Optimised a, Value_Optimised b)
         {
             this.numSignals = a.numSignals;
-            this.signals = a.signals | b.signals;
+            this.signals = (a.signals | b.signals) & ~0b1;
         }
         public Value_Optimised(string val)
         {
@@ -150,12 +160,14 @@ namespace QuineMcCluskey
                 else
                     throw new ArgumentException("CONTAINED NOT ALOWED SYMBOL");
             }
+
+            signals <<= 1;
         }
 
         public int GetGroupIndex()
         {
             int groupIndex = 0;
-            int value = signals;
+            int value = signals >> 1;
             for (int i = 0; i < numSignals; i++)
             {
                 if ((value & 0b11) == 0b10)
@@ -168,7 +180,7 @@ namespace QuineMcCluskey
         public int GetDontCareCount()
         {
             int count = 0;
-            int value = signals;
+            int value = signals >> 1;
             for (int i = 0; i < numSignals; i++)
             {
                 if ((value & 0b11) == 0b11)
@@ -178,11 +190,16 @@ namespace QuineMcCluskey
             return count;
         }
 
+        public bool WasUsed()
+        {
+            return (signals % 2) == 1;
+        }
+
         public bool IsSimilar(Value_Optimised other)
         {
             int differences = 0;
-            int valueA = this.signals;
-            int valueB = other.signals;
+            int valueA = this.signals >> 1;
+            int valueB = other.signals >> 1;
             for (int i = 0; i < numSignals; i++)
             {
                 if ((valueA & 0b11) != (valueB & 0b11))
@@ -199,7 +216,7 @@ namespace QuineMcCluskey
         public bool Implies(Value_Optimised other)
         {
             //a=>b
-            int impliedValue = ~this.signals | (this.signals & other.signals);
+            int impliedValue = (~this.signals | (this.signals & other.signals)) >> 1;
             for (int i = 0; i < numSignals; i++)
             {
                 if ((impliedValue & 0b11) != 0b11)
@@ -212,7 +229,7 @@ namespace QuineMcCluskey
         public override string ToString()
         {
             string res = "";
-            int value = this.signals;
+            int value = this.signals >> 1;
             for (int i = 0; i < numSignals; i++)
             {
                 if ((value & 0b11) == 0b11)
@@ -232,9 +249,28 @@ namespace QuineMcCluskey
         {
             if (obj?.GetType() == this.GetType())
             {
-                return this.signals == ((Value_Optimised)obj).signals;
+                return (this.signals >> 1) == (((Value_Optimised)obj).signals >> 1);
             }
             return false;
+        }
+        public override int GetHashCode()
+        {
+            return signals.GetHashCode();
+        }
+
+        public bool Equals(Value_Optimised other)
+        {
+            return (this.signals >> 1) == (other.signals >> 1);
+        }
+
+        public static bool operator ==(Value_Optimised left, Value_Optimised right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Value_Optimised left, Value_Optimised right)
+        {
+            return !(left == right);
         }
     }
 }

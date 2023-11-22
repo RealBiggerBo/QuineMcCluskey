@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace QuineMcCluskey
 {
+#pragma warning disable
     public class CharQuineMcCluskeySolver
     {
         private int numSignals;
@@ -18,7 +19,6 @@ namespace QuineMcCluskey
 
         public CharQuineMcCluskeySolver(params int[] outputs)
         {
-            this.outputs = outputs;
             numSignals = MathF.ILogB(MathF.Max(1, outputs.Max())) + 1;
 
             outputValues = new Value_Base[outputs.Length];
@@ -137,16 +137,15 @@ namespace QuineMcCluskey
             return false;
         }
     }
+#pragma warning restore
 
     public class IntQuineMcCluskeySolver
     {
-        private int numSignals;
-        private int[] outputs;
-        private Value_Optimised[] outputValues;
+        private readonly int numSignals;
+        private readonly Value_Optimised[] outputValues;
 
         public IntQuineMcCluskeySolver(params int[] outputs)
         {
-            this.outputs = outputs;
             numSignals = MathF.ILogB(MathF.Max(1, outputs.Max())) + 1;
 
             outputValues = new Value_Optimised[outputs.Length];
@@ -156,7 +155,7 @@ namespace QuineMcCluskey
             }
         }
 
-        public Iteration_Optimised Solve()
+        public async Task<Iteration_Optimised> Solve()
         {
             //Setup InputIteration
             Iteration_Optimised inputIteration = new Iteration_Optimised();
@@ -166,27 +165,30 @@ namespace QuineMcCluskey
             }
 
             //Phase one
-            Iteration_Optimised resultPhaseOne = SolvePhaseOne(inputIteration);
+            Iteration_Optimised resultPhaseOne = await SolvePhaseOne(inputIteration);
 
             //Phase two
             Table_Optimised table = new Table_Optimised(outputValues, resultPhaseOne.GetValues());
-            Iteration_Optimised finalResult = SolvePhaseTwo(table);
+            Iteration_Optimised finalResult = SolvePhaseTwo(table).Result;
 
             return finalResult;
         }
 
-        private Iteration_Optimised SolvePhaseOne(Iteration_Optimised inputIteration)
+        private static async Task<Iteration_Optimised> SolvePhaseOne(Iteration_Optimised inputIteration)
         {
             Iteration_Optimised result = new Iteration_Optimised();
             while (inputIteration.GetLength() != 0)
             {
-                inputIteration.GetNextIteration(out Iteration_Optimised nextIteration, out Iteration_Optimised notUsedIteration);
-                inputIteration = nextIteration;
-                result.Add(notUsedIteration);
+                await Task.Run(() =>
+                {
+                    inputIteration.GetNextIteration(out Iteration_Optimised nextIteration, out Iteration_Optimised notUsedIteration);
+                    inputIteration = nextIteration;
+                    result.Add(notUsedIteration);
+                });
             }
             return result;
         }
-        private Iteration_Optimised SolvePhaseTwo(Table_Optimised inputTable)
+        private static async Task<Iteration_Optimised> SolvePhaseTwo(Table_Optimised inputTable)
         {
             Iteration_Optimised result = new Iteration_Optimised();
 
@@ -202,13 +204,13 @@ namespace QuineMcCluskey
                 }
 
                 //Zeilendominanz
-                while (inputTable.GetRowDominance(ref inputTable))
+                while (inputTable.RemoveDominatedRow())
                 {
                     changed = true;
                 }
 
                 //Reihendominanz
-                while (inputTable.GetColumnDominance(ref inputTable))
+                while (inputTable.RemoveDominatedCol())
                 {
                     changed = true;
                 }
@@ -217,16 +219,15 @@ namespace QuineMcCluskey
                     break;
             }
             //Verzweigungsmethode
-            //TODO
             if (inputTable.GetLength() != 0)
             {
                 List<Iteration_Optimised> iterations = new List<Iteration_Optimised>();
-                List<Task> tasks = new List<Task>();
+                //List<Task> tasks = new List<Task>();
                 for (int i = 0; i < inputTable.height; i++)
                 {
                     Iteration_Optimised partial = new Iteration_Optimised(inputTable.GetImplicant(i));
                     iterations.Add(partial);
-                    partial.Add(SolvePhaseTwo(new Table_Optimised(inputTable, i)));
+                    partial.Add(await SolvePhaseTwo(new Table_Optimised(inputTable, i)));
                 }
                 int maxDontCareCount = iterations.Max((iteration) => iteration.GetDontCareCount());
                 result.Add(iterations.First((iteration) => iteration.GetDontCareCount() == maxDontCareCount));
@@ -234,7 +235,7 @@ namespace QuineMcCluskey
             return result;
         }
 
-        private bool GetEssential(ref Table_Optimised table, out Value_Optimised essential)
+        private static bool GetEssential(ref Table_Optimised table, out Value_Optimised essential)
         {
             essential = default;
 
@@ -244,8 +245,7 @@ namespace QuineMcCluskey
                 bool prime = false;
                 for (int y = 0; y < table.height; y++)
                 {
-                    int marked = table.Get(x, y);
-                    if (marked == 1)
+                    if (table.Get(x, y))
                     {
                         prime = !prime;
                         if (!prime)
