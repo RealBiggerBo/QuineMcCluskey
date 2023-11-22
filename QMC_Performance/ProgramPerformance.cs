@@ -31,7 +31,7 @@ namespace QMC_Performance
         {
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 3, 5, 10, 11, 12, 13, 14, 15);
 
-            solver.Solve();
+            _ = solver.Solve();
         }
 
         [Benchmark]
@@ -47,7 +47,23 @@ namespace QMC_Performance
         {
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 33, 41, 43, 47, 53, 59, 61);
 
+            _ = solver.Solve();
+        }
+
+        [Benchmark]
+        public void BranchingTest2_Char()
+        {
+            CharQuineMcCluskeySolver solver = new CharQuineMcCluskeySolver(1, 6, 12, 14, 16, 20, 26, 31, 34, 38, 42, 46, 50, 56, 57, 63);
+
             solver.Solve();
+        }
+
+        [Benchmark]
+        public void BranchingTest2_Int()
+        {
+            IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 6, 12, 14, 16, 20, 26, 31, 34, 38, 42, 46, 50, 56, 57, 63);
+
+            _ = solver.Solve();
         }
     }
 

@@ -204,13 +204,13 @@ namespace QuineMcCluskey
                 }
 
                 //Zeilendominanz
-                while (inputTable.RemoveDominatedRow())
+                if (inputTable.RemoveDominatedRow())
                 {
                     changed = true;
                 }
 
                 //Reihendominanz
-                while (inputTable.RemoveDominatedCol())
+                if (inputTable.RemoveDominatedCol())
                 {
                     changed = true;
                 }
@@ -222,12 +222,12 @@ namespace QuineMcCluskey
             if (inputTable.GetLength() != 0)
             {
                 List<Iteration_Optimised> iterations = new List<Iteration_Optimised>();
-                //List<Task> tasks = new List<Task>();
+
                 for (int i = 0; i < inputTable.height; i++)
                 {
                     Iteration_Optimised partial = new Iteration_Optimised(inputTable.GetImplicant(i));
-                    iterations.Add(partial);
                     partial.Add(await SolvePhaseTwo(new Table_Optimised(inputTable, i)));
+                    iterations.Add(partial);
                 }
                 int maxDontCareCount = iterations.Max((iteration) => iteration.GetDontCareCount());
                 result.Add(iterations.First((iteration) => iteration.GetDontCareCount() == maxDontCareCount));

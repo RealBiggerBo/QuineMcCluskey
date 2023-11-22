@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -188,24 +189,13 @@ namespace QuineMcCluskey
         public int width;
         public int height;
 
-        public Table_Optimised(Value_Optimised[] outputs, List<Value_Optimised> implicants)
+        public Table_Optimised(Span<Value_Optimised> outputs, List<Value_Optimised> implicants)
         {
-            //data = new List<int>();
             data = new BitArray(outputs.Length * implicants.Count);
             this.implicants = new List<Value_Optimised>(implicants);
             width = outputs.Length;
             height = implicants.Count;
 
-            //for (int i = 0; i < height; i++)
-            //{
-            //    for (int j = 0; j < width; j++)
-            //    {
-            //        if (outputs[j].Implies(implicants[i]))
-            //            data.Add(1);
-            //        else
-            //            data.Add(0);
-            //    }
-            //}
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -216,7 +206,6 @@ namespace QuineMcCluskey
         }
         public Table_Optimised(Table_Optimised original, int excludeRow)
         {
-            //data = new List<int>(original.data);
             data = (BitArray)original.data.Clone();
             implicants = new List<Value_Optimised>(original.implicants);
             this.width = original.width;
@@ -249,6 +238,7 @@ namespace QuineMcCluskey
             RemoveRow(_y);
         }
 
+#if false
         public bool RemoveDominatedRow()
         {
             for (int y = 0; y < height; y++)
@@ -282,7 +272,46 @@ namespace QuineMcCluskey
             }
             return false;
         }
-
+#else
+        public bool RemoveDominatedRow()
+        {
+            bool changed = false;
+            for (int y = 0; y < height; y++)
+            {
+                for (int y2 = 0; y2 < height; y2++)
+                {
+                    if (y == y2)
+                        continue;
+                    if (CheckRowDomination(y, y2))
+                    {
+                        RemoveRow(y2);
+                        changed = true;
+                        y2--;
+                    }
+                }
+            }
+            return changed;
+        }
+        public bool RemoveDominatedCol()
+        {
+            bool changed = false;
+            for (int x = 0; x < width; x++)
+            {
+                for (int x2 = 0; x2 < width; x2++)
+                {
+                    if (x == x2) continue;
+                    if (CheckColDomination(x, x2))
+                    {
+                        RemoveCol(x);
+                        changed = true;
+                        x--;
+                        break;
+                    }
+                }
+            }
+            return changed;
+        }
+#endif
         private void RemoveRow(int rowIndex)
         {
             for (int i = (rowIndex+1)*width; i < data.Count; i++)
