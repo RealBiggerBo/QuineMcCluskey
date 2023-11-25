@@ -15,6 +15,7 @@ namespace QMC_Performance
         }
     }
 
+    //[Config(typeof(AntiVirusFriendlyConfig))]
     [MemoryDiagnoser]
     public class QMC_Benchmark
     {
@@ -31,7 +32,7 @@ namespace QMC_Performance
         {
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 3, 5, 10, 11, 12, 13, 14, 15);
 
-            _ = solver.Solve();
+            solver.Solve();
         }
 
         [Benchmark]
@@ -47,7 +48,7 @@ namespace QMC_Performance
         {
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 33, 41, 43, 47, 53, 59, 61);
 
-            _ = solver.Solve();
+            solver.Solve();
         }
 
         [Benchmark]
@@ -63,7 +64,7 @@ namespace QMC_Performance
         {
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 6, 12, 14, 16, 20, 26, 31, 34, 38, 42, 46, 50, 56, 57, 63);
 
-            _ = solver.Solve();
+            solver.Solve();
         }
     }
 
@@ -165,6 +166,14 @@ namespace QMC_Performance
         public void Modulo()
         {
             int res = 13 % 2;
+        }
+    }
+
+    public class AntiVirusFriendlyConfig : ManualConfig
+    {
+        public AntiVirusFriendlyConfig()
+        {
+            AddJob(Job.MediumRun.WithToolchain(InProcessNoEmitToolchain.Instance));
         }
     }
 }

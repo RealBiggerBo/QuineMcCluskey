@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -186,14 +187,13 @@ namespace QuineMcCluskey
 
         public void Add(Value_Optimised value)
         {
-            Group_Optimised? matchingGroup = GetGroupByIndex(value.GetGroupIndex());
-            if (matchingGroup == null)
+            if (!GetGroupByIndex(value.GetGroupIndex(), out Group_Optimised matchingGroup))
             {
                 groups.Add(new Group_Optimised(value));
             }
             else
             {
-                matchingGroup?.Add(value);
+                matchingGroup.Add(value);
             }
         }
         public void Add(Group_Optimised group)
@@ -221,12 +221,18 @@ namespace QuineMcCluskey
             return false;
         }
 
-        public Group_Optimised? GetGroupByIndex(int index)
+        public bool GetGroupByIndex(int index,out Group_Optimised group)
         {
             if (groups.Where((g) => g.index == index).Count() == 0)
-                return null;
+            {
+                group = default;
+                return false;
+            }
             else
-                return groups.First((g) => g.index == index);
+            {
+                group = groups.First((g) => g.index == index);
+                return true;
+            }
         }
 
         public int GetLength()
@@ -267,33 +273,30 @@ namespace QuineMcCluskey
         public void GetNextIteration(out Iteration_Optimised nextIteration, out Iteration_Optimised notUsedIteration)
         {
             nextIteration = new Iteration_Optimised();
+
             for (int i = 0; i < groups.Count; i++)
             {
                 Group_Optimised groupA = groups[i];
-                Group_Optimised? groupB = GetGroupByIndex(groupA.index + 1);
-                if (groupB == null)
-                {
-
-                }
-                else
+                if (GetGroupByIndex(groupA.index + 1, out Group_Optimised groupB))
                 {
                     for (int j = 0; j < groupA.GetLength(); j++)
                     {
                         Value_Optimised valA = groupA.Get(j);
-                        for (int k = 0; k < groupB?.GetLength(); k++)
+                        for (int k = 0; k < groupB.GetLength(); k++)
                         {
                             Value_Optimised valB = ((Group_Optimised)groupB).Get(k);
                             if (valA.IsSimilar(valB))
                             {
                                 nextIteration.Add(new Value_Optimised(valA, valB));
                                 groupA.Use(valA);
-                                ((Group_Optimised)groupB).Use(valB);
+                                (groupB).Use(valB);
                                 groupB.Equals(valB);
                             }
                         }
                     }
                 }
             }
+
             notUsedIteration = GetUnused();
         }
 

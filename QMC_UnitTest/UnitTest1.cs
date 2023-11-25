@@ -32,22 +32,93 @@ namespace QMC_UnitTest
         public void BranchingTestCase()
         {
             //Arrange
+            #region SETUP
             IntQuineMcCluskeySolver solver = new IntQuineMcCluskeySolver(1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 33, 41, 43, 47, 53, 59, 61);
-            Iteration_Optimised expectedIteration = new Iteration_Optimised(new Value_Optimised("00001-"), new Value_Optimised("0-00-1"),
+
+            Iteration_Optimised expectedIteration1 = new Iteration_Optimised(new Value_Optimised("00001-"), new Value_Optimised("0-00-1"),
                 new Value_Optimised("101-11"), new Value_Optimised("11-101"), new Value_Optimised("1-1011"), new Value_Optimised("00-011"),
                 new Value_Optimised("10-001"), new Value_Optimised("000--1"), new Value_Optimised("0-1101"), new Value_Optimised("01-111"));
+
+            Iteration_Optimised expectedIteration2 = new Iteration_Optimised(GetValuesFromSignals(6, "ABDE'F", "ACD'EF", "AB'CEF", "A'BDEF",
+                "A'CDE'F", "B'CD'EF", "AB'D'E'F", "A'B'C'D'E", "A'C'D'F", "A'B'C'F"));
+
+            Iteration_Optimised expectedIteration3 = new Iteration_Optimised(GetValuesFromSignals(6, "ABDE'F", "ACD'EF", "AB'CEF", "A'BCDF", "AB'D'E'F",
+                "A'B'DE'F", "A'B'D'EF", "A'B'C'D'E", "A'C'EF", "A'C'D'F"));
+
+            Iteration_Optimised expectedIteration4 = new Iteration_Optimised(GetValuesFromSignals(6, "ABDE'F", "ACD'EF", "AB'CEF", "A'BCDF", "B'CD'EF",
+                "AB'D'E'F", "A'B'DE'F", "A'B'C'D'E", "A'C'EF", "A'C'D'F"));
+
+            Value_Optimised[] expected1 = expectedIteration1.GetValues().ToArray();
+            Value_Optimised[] expected2 = expectedIteration2.GetValues().ToArray();
+            Value_Optimised[] expected3 = expectedIteration3.GetValues().ToArray();
+            Value_Optimised[] expected4 = expectedIteration4.GetValues().ToArray(); 
+            #endregion
 
             //Act
             Iteration_Optimised actualResult = solver.Solve().Result;
 
             //Assert
-            Value_Optimised[] expected = expectedIteration.GetValues().ToArray();
             Value_Optimised[] actual = actualResult.GetValues().ToArray();
 
-            for (int i = 0; i < expected.Length; i++)
+            Assert.Equal(expected1.Length, actual.Length);
+            Assert.Equal(expected2.Length, actual.Length);
+            Assert.Equal(expected3.Length, actual.Length);
+            Assert.Equal(expected4.Length, actual.Length);
+
+            for (int i = 0; i < actual.Length; i++)
             {
-                Assert.Contains<Value_Optimised>(expected[i], actual);
+                if (expected1.Contains(actual[i])) continue;
+                else if (expected2.Contains(actual[i])) continue;
+                else if (expected3.Contains(actual[i])) continue;
+                else if (expected4.Contains(actual[i])) continue;
+                else
+                    Assert.Fail("Did not contain: " + actual[i]);
             }
+        }
+        Value_Optimised[] GetValuesFromSignals(int signalLength,params string[] signals)
+        {
+            Value_Optimised[] values = new Value_Optimised[signals.Length];
+            for (int i = 0;i < signals.Length;i++)
+            {
+                values[i] = new Value_Optimised(ConvertSignalToNumeric(signalLength,signals[i]));
+            }
+            return values;
+        }
+        string ConvertSignalToNumeric(int signalLength, string signal)
+        {
+            string res = "";
+            char expected = 'A';
+            int signalsLeft = signalLength;
+            for (int i = 0; i < signal.Length; i++)
+            {
+                if (signal[i] != expected)
+                {
+                    while (expected != signal[i])
+                    {
+                        expected++;
+                        signalsLeft--;
+                        res = res + '-';
+                    }
+                }
+
+                if (signal.Length > i+1 && signal[i + 1] == '\'')
+                {
+                    res = res + '0';
+                    i++;
+                }
+                else
+                    res = res + '1';
+
+                expected++;
+                signalsLeft--;
+            }
+
+            for (int i = 0; i < signalsLeft; i++)
+            {
+                res = res + '-';
+            }
+
+            return res;
         }
     }
 

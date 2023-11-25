@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -165,26 +166,23 @@ namespace QuineMcCluskey
             }
 
             //Phase one
-            Iteration_Optimised resultPhaseOne = await SolvePhaseOne(inputIteration);
+            Iteration_Optimised resultPhaseOne = SolvePhaseOne(inputIteration);
 
             //Phase two
             Table_Optimised table = new Table_Optimised(outputValues, resultPhaseOne.GetValues());
-            Iteration_Optimised finalResult = SolvePhaseTwo(table).Result;
+            Iteration_Optimised finalResult = await SolvePhaseTwo(table);
 
             return finalResult;
         }
 
-        private static async Task<Iteration_Optimised> SolvePhaseOne(Iteration_Optimised inputIteration)
+        private static Iteration_Optimised SolvePhaseOne(Iteration_Optimised inputIteration)
         {
             Iteration_Optimised result = new Iteration_Optimised();
             while (inputIteration.GetLength() != 0)
             {
-                await Task.Run(() =>
-                {
-                    inputIteration.GetNextIteration(out Iteration_Optimised nextIteration, out Iteration_Optimised notUsedIteration);
-                    inputIteration = nextIteration;
-                    result.Add(notUsedIteration);
-                });
+                inputIteration.GetNextIteration(out Iteration_Optimised nextIteration, out Iteration_Optimised notUsedIteration);
+                inputIteration = nextIteration;
+                result.Add(notUsedIteration);
             }
             return result;
         }
@@ -221,14 +219,32 @@ namespace QuineMcCluskey
             //Verzweigungsmethode
             if (inputTable.GetLength() != 0)
             {
-                List<Iteration_Optimised> iterations = new List<Iteration_Optimised>();
+                List<Iteration_Optimised> iterations = new List<Iteration_Optimised>(inputTable.height);
+                //ConcurrentBag<Iteration_Optimised> iterations = new ConcurrentBag<Iteration_Optimised>();
+
+                //Parallel.For(0, inputTable.height, (index) =>
+                //{
+                //    //int index = i;
+                //    Iteration_Optimised partial = new Iteration_Optimised(inputTable.GetImplicant(index));
+                //    partial.Add(SolvePhaseTwo(new Table_Optimised(inputTable, index)));
+                //    iterations.Add(partial);
+                //});
+
+                Task[] tasks = new Task[inputTable.height];
 
                 for (int i = 0; i < inputTable.height; i++)
                 {
-                    Iteration_Optimised partial = new Iteration_Optimised(inputTable.GetImplicant(i));
-                    partial.Add(await SolvePhaseTwo(new Table_Optimised(inputTable, i)));
-                    iterations.Add(partial);
+                    int index = i;
+                    tasks[i] = Task.Run(() =>
+                    {
+                        Iteration_Optimised partial = new Iteration_Optimised(inputTable.GetImplicant(index));
+                        partial.Add(SolvePhaseTwo(new Table_Optimised(inputTable, index)).Result);
+                        iterations.Add(partial);
+                    });
                 }
+
+                await Task.WhenAll(tasks);
+
                 int maxDontCareCount = iterations.Max((iteration) => iteration.GetDontCareCount());
                 result.Add(iterations.First((iteration) => iteration.GetDontCareCount() == maxDontCareCount));
             }
